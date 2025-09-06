@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>折纸工具合集</title>
+    <link rel="stylesheet" href="res/css/style.css">
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f0f0f0; /* 浅灰背景 */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #222; /* 深灰背景 */
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header p {
+            color: #ccc;
+            margin-top: 0.3rem;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        /* 卡片样式 */
+        .tool-card {
+            background-color: #fff; /* 白色卡片 */
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .tool-card h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            color: #111;
+        }
+
+        .tool-card p {
+            flex: 1;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .tool-card a {
+            margin-top: 1rem;
+            text-decoration: none;
+            color: #fff;
+            background-color: #333; /* 深灰按钮 */
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .tool-card a:hover {
+            background-color: #555;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+            background-color: #f0f0f0;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>折纸工具合集</h1>
+        <p>汇集各种折纸设计工具和资源</p>
+    </header>
+
+    <main>
+        <!-- 工具卡片示例 -->
+        <div class="tool-card">
+            <h2>TreeMaker</h2>
+            <p>生成折纸树形结构的工具，可自定义分支和比例，适合复杂模型设计。</p>
+            <a href="tools/tool1/index.html">前往工具</a>
+        </div>
+
+        <div class="tool-card">
+            <h2>Rabbit Ear</h2>
+            <p>交互式折纸折线模拟工具，可在线绘制和测试折纸模型。</p>
+            <a href="tools/tool2/index.html">前往工具</a>
+        </div>
+
+        <div class="tool-card">
+            <h2>SVG Origami Editor</h2>
+            <p>可视化编辑折纸 SVG 文件，支持导出 PNG/JPG 和自定义折线样式。</p>
+            <a href="tools/tool3/index.html">前往工具</a>
+        </div>
+        <!-- 更多工具可按此格式添加 -->
+    </main>
+
+    <footer>
+        &copy; 2025 折纸工具合集 | GitHub Pages
+    </footer>
+</body>
+</html>
