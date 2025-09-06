@@ -3,7 +3,7 @@ import os
 TOOLS_DIR = "tools"
 INDEX_FILE = "index.html"
 
-# 模板 HTML 上下文
+# HTML 模板
 HTML_HEAD = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -44,10 +44,11 @@ HTML_FOOTER = """
 
 def get_tools():
     tools = []
+    if not os.path.exists(TOOLS_DIR):
+        return tools
     for tool_name in sorted(os.listdir(TOOLS_DIR)):
         tool_path = os.path.join(TOOLS_DIR, tool_name)
         if os.path.isdir(tool_path):
-            # 尝试读取 README.md 第一行作为简介
             readme_file = os.path.join(tool_path, "README.md")
             desc = "暂无描述"
             if os.path.exists(readme_file):
@@ -57,7 +58,6 @@ def get_tools():
                         if line:
                             desc = line
                             break
-            # index.html 链接
             link = f"{TOOLS_DIR}/{tool_name}/index.html"
             tools.append({"name": tool_name, "desc": desc, "link": link})
     return tools
