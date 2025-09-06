@@ -1,0 +1,31 @@
+name: Update Index
+
+on:
+  push:
+    paths:
+      - 'tools/**'
+  workflow_dispatch: # 手动触发
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Generate index.html
+        run: |
+          python3 .github/scripts/generate_index.py
+          
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add index.html
+          git commit -m "Update index.html [skip ci]" || echo "No changes"
+          git push
