@@ -51,7 +51,11 @@
       margin: 0.5rem;
       transition: background-color 0.2s;
     }
-    input[type="file"]:hover, button:hover { background-color:#555; }
+    input[type="text"] {
+      margin:0.3rem;
+      padding:0.4rem;
+    }
+    button:hover { background-color:#555; }
     #file-name { margin-top: 1rem; font-size:0.95rem; color:#555; }
     .color-inputs { margin-top: 1rem; }
     .color-inputs label { display:block; margin:0.3rem; }
@@ -69,10 +73,10 @@
     <div id="file-name">未选择文件</div>
 
     <div class="color-inputs">
-      <label>山折线 (红色 type=2)：<input type="text" id="redColor" value="#ff0000"></label>
-      <label>谷折线 (蓝色 type=3)：<input type="text" id="blueColor" value="#0000ff"></label>
-      <label>边缘线 (黑色 type=1)：<input type="text" id="blackColor" value="#000000"></label>
-      <label>辅助线 (青色 type=4)：<input type="text" id="cyanColor" value="#64c8c8"></label>
+      <label>山折线 (type 2)：<input type="text" id="redColor" value="#ff0000"></label>
+      <label>谷折线 (type 3)：<input type="text" id="blueColor" value="#0000ff"></label>
+      <label>边缘线 (type 1)：<input type="text" id="blackColor" value="#000000"></label>
+      <label>辅助线 (type 4)：<input type="text" id="cyanColor" value="#64c8c8"></label>
     </div>
 
     <button onclick="convertSVGtoCP()">转换并下载 .cp</button>
@@ -81,43 +85,44 @@
   <script>
     const svgInput=document.getElementById('svgInput');
     const fileNameDisplay=document.getElementById('file-name');
-    svgInput.addEventListener('change',()=>{
-      const f=svgInput.files[0];
-      fileNameDisplay.textContent=f?f.name:"未选择文件";
-    });
+    svgInput.addEventListener('change',()=>{const f=svgInput.files[0]; fileNameDisplay.textContent=f?f.name:"未选择文件";});
+
+    function normalizeColor(color) {
+      const ctx=document.createElement("canvas").getContext("2d");
+      ctx.fillStyle=color;
+      return ctx.fillStyle.toLowerCase(); // 返回标准化 hex 颜色
+    }
 
     function formatCoord(val){
-      return parseFloat(val).toFixed(14);
+      return parseFloat(val).toFixed(14); // 保持高精度
     }
 
     function convertSVGtoCP(){
       const file=svgInput.files[0];
       if(!file){alert("请先选择一个 SVG 文件"); return;}
 
-      const red=document.getElementById('redColor').value.toLowerCase();
-      const blue=document.getElementById('blueColor').value.toLowerCase();
-      const black=document.getElementById('blackColor').value.toLowerCase();
-      const cyan=document.getElementById('cyanColor').value.toLowerCase();
-
-      const mapping={[red]:2,[blue]:3,[black]:1,[cyan]:4};
+      const mapping = {
+        [normalizeColor(document.getElementById('redColor').value)]: 2,
+        [normalizeColor(document.getElementById('blueColor').value)]: 3,
+        [normalizeColor(document.getElementById('blackColor').value)]: 1,
+        [normalizeColor(document.getElementById('cyanColor').value)]: 4
+      };
 
       const reader=new FileReader();
       reader.onload=function(e){
         const doc=new DOMParser().parseFromString(e.target.result,"image/svg+xml");
         const lines=doc.getElementsByTagName('line');
         if(!lines.length){alert("SVG 中没有 <line> 元素"); return;}
-
         let cpLines=[];
         for(let line of lines){
           const x1=line.getAttribute("x1");
           const y1=line.getAttribute("y1");
           const x2=line.getAttribute("x2");
           const y2=line.getAttribute("y2");
-          const stroke=(line.getAttribute("stroke")||"").toLowerCase();
-          const type=mapping[stroke]||1; // 默认黑色 type=1
+          const stroke=normalizeColor(line.getAttribute("stroke")||"#000");
+          const type=mapping[stroke]||1;
           cpLines.push(`${type} ${formatCoord(x1)} ${formatCoord(y1)} ${formatCoord(x2)} ${formatCoord(y2)}`);
         }
-
         const blob=new Blob([cpLines.join("\n")],{type:"text/plain"});
         const link=document.createElement("a");
         link.href=URL.createObjectURL(blob);
