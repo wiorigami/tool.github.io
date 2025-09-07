@@ -1,119 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>SVG to CP Converter (Hex Color Mapping)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG 转 CP</title>
+  <link rel="icon" href="../../res/ico.png">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
-    input, button {
-      margin: 10px;
-      padding: 10px;
-      font-size: 16px;
+    header {
+      background-color: #222;
+      color: #fff;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    #file-name {
-      margin-top: 10px;
-      color: #555;
-      font-size: 14px;
+    header h1 { margin:0 auto; font-size:1.5rem; }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      background-color: #444;
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      transition: background-color 0.2s;
     }
-    .color-inputs {
-      margin-top: 20px;
+    header a:hover { background-color:#666; }
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .color-inputs label {
-      display: block;
-      margin: 5px;
+    input[type="file"], button {
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+      margin: 0.5rem;
+      transition: background-color 0.2s;
     }
+    input[type="file"]:hover, button:hover { background-color:#555; }
+    #file-name { margin-top: 1rem; font-size:0.95rem; color:#555; }
+    .color-inputs { margin-top: 1rem; }
+    .color-inputs label { display:block; margin:0.3rem; }
   </style>
 </head>
 <body>
-  <h2>SVG to CP Converter</h2>
+  <header>
+    <a href="../../index.html">← 返回主页</a>
+    <h1>SVG 转 CP</h1>
+    <div style="width:80px;"></div>
+  </header>
 
-  <input type="file" id="svgInput" accept=".svg">
-  <div id="file-name">No file selected</div>
+  <main>
+    <input type="file" id="svgInput" accept=".svg">
+    <div id="file-name">未选择文件</div>
 
-  <div class="color-inputs">
-    <label>
-      mountain (type 2)：
-      <input type="text" id="redColor" value="#ff0000">
-    </label>
-    <label>
-      valley (type 3)：
-      <input type="text" id="blueColor" value="#0000ff">
-    </label>
-    <label>
-      edge (type 1)：
-      <input type="text" id="blackColor" value="#000000">
-    </label>
-  </div>
+    <div class="color-inputs">
+      <label>山折线 (红色 type=2)：<input type="text" id="redColor" value="#ff0000"></label>
+      <label>谷折线 (蓝色 type=3)：<input type="text" id="blueColor" value="#0000ff"></label>
+      <label>边缘线 (黑色 type=1)：<input type="text" id="blackColor" value="#000000"></label>
+      <label>辅助线 (青色 type=4)：<input type="text" id="cyanColor" value="#64c8c8"></label>
+    </div>
 
-  <button onclick="convertSVGtoCP()">Convert and Download .cp</button>
+    <button onclick="convertSVGtoCP()">转换并下载 .cp</button>
+  </main>
 
   <script>
-    const svgInput = document.getElementById('svgInput');
-    const fileNameDisplay = document.getElementById('file-name');
-
-    svgInput.addEventListener('change', () => {
-      const file = svgInput.files[0];
-      fileNameDisplay.textContent = file ? file.name : "No file selected";
+    const svgInput=document.getElementById('svgInput');
+    const fileNameDisplay=document.getElementById('file-name');
+    svgInput.addEventListener('change',()=>{
+      const f=svgInput.files[0];
+      fileNameDisplay.textContent=f?f.name:"未选择文件";
     });
 
-    function formatCoord14(val) {
+    function formatCoord(val){
       return parseFloat(val).toFixed(14);
     }
 
-    function convertSVGtoCP() {
-      const file = svgInput.files[0];
-      if (!file) {
-        alert("Please select an SVG file first.");
-        return;
-      }
+    function convertSVGtoCP(){
+      const file=svgInput.files[0];
+      if(!file){alert("请先选择一个 SVG 文件"); return;}
 
-      const redValue = document.getElementById('redColor').value.toLowerCase();
-      const blueValue = document.getElementById('blueColor').value.toLowerCase();
-      const blackValue = document.getElementById('blackColor').value.toLowerCase();
+      const red=document.getElementById('redColor').value.toLowerCase();
+      const blue=document.getElementById('blueColor').value.toLowerCase();
+      const black=document.getElementById('blackColor').value.toLowerCase();
+      const cyan=document.getElementById('cyanColor').value.toLowerCase();
 
-      const colorToTypeMapping = {
-        [redValue]: 2,
-        [blueValue]: 3,
-        [blackValue]: 1
-      };
+      const mapping={[red]:2,[blue]:3,[black]:1,[cyan]:4};
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(e.target.result, "image/svg+xml");
-        const lines = doc.getElementsByTagName('line');
+      const reader=new FileReader();
+      reader.onload=function(e){
+        const doc=new DOMParser().parseFromString(e.target.result,"image/svg+xml");
+        const lines=doc.getElementsByTagName('line');
+        if(!lines.length){alert("SVG 中没有 <line> 元素"); return;}
 
-        if (lines.length === 0) {
-          alert("No <line> elements found in the SVG.");
-          return;
+        let cpLines=[];
+        for(let line of lines){
+          const x1=line.getAttribute("x1");
+          const y1=line.getAttribute("y1");
+          const x2=line.getAttribute("x2");
+          const y2=line.getAttribute("y2");
+          const stroke=(line.getAttribute("stroke")||"").toLowerCase();
+          const type=mapping[stroke]||1; // 默认黑色 type=1
+          cpLines.push(`${type} ${formatCoord(x1)} ${formatCoord(y1)} ${formatCoord(x2)} ${formatCoord(y2)}`);
         }
 
-        let cpLines = [];
-
-        for (let line of lines) {
-          const x1 = line.getAttribute('x1');
-          const y1 = line.getAttribute('y1');
-          const x2 = line.getAttribute('x2');
-          const y2 = line.getAttribute('y2');
-          const stroke = (line.getAttribute('stroke') || '').toLowerCase();
-
-          const type = colorToTypeMapping[stroke] || 1; 
-
-          cpLines.push(`${type} ${formatCoord14(x1)} ${formatCoord14(y1)} ${formatCoord14(x2)} ${formatCoord14(y2)}`);
-        }
-
-        const blob = new Blob([cpLines.join('\n')], { type: "text/plain" });
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = file.name.replace(/\.svg$/, '') + ".cp";
-        downloadLink.click();
-        alert("Conversion complete. CP file downloaded.");
+        const blob=new Blob([cpLines.join("\n")],{type:"text/plain"});
+        const link=document.createElement("a");
+        link.href=URL.createObjectURL(blob);
+        link.download=file.name.replace(/\.svg$/,"")+".cp";
+        link.click();
+        alert("转换完成，已下载 CP 文件。");
       };
-
       reader.readAsText(file);
     }
   </script>
